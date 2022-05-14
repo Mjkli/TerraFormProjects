@@ -1,3 +1,9 @@
+#
+# Code was used from:
+# https://www.youtube.com/watch?v=SLB_c_ayRMo&ab_channel=freeCodeCamp.org
+#
+
+
 variable "access_key"{}
 variable "secret_key"{}
 
@@ -118,7 +124,7 @@ resource "aws_security_group" "security_group_prod" {
 
 resource "aws_network_interface" "webserver-nic" {
     subnet_id = aws_subnet.subnet-1.id
-    private_ip = "10.0.1.244"
+    private_ip = "10.0.1.173"
     security_groups = [aws_security_group.security_group_prod.id]  
 
 }
