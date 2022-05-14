@@ -1,4 +1,4 @@
-project-1/.terraform.lock.hcl
-project-1/terraform.tfvars
-project-1/.terraform
-project-1/.terraform.lock.hcl
+WebServer/.terraform.lock.hcl
+WebServer/terraform.tfvars
+WebServer/.terraform
+WebServer/.terraform.lock.hcl
