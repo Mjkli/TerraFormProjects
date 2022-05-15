@@ -28,6 +28,8 @@ provider "aws"{
 # 7. Create a network inerface with an ip in the subnet that was created in step 4
 # 8. Assign an elastic IP to the network interface created in step 7
 # 9. Create Ubuntu server and install/enable apache2
+# 10. Create an SQL database
+# 11. tie it to the Web front end.
 
 # 1. Create VPC
 resource "aws_vpc" "main" {
@@ -168,3 +170,18 @@ resource "aws_instance" "webserver-instance" {
                 EOF
 
 }
+
+# 10. create Mysql database
+
+resource "aws_db_instance" "default" {
+  allocated_storage    = 10
+  engine               = "mysql"
+  engine_version       = "5.7"
+  instance_class       = "db.t3.micro"
+  name                 = "mydb"
+  username             = "foo"
+  password             = "foobarbaz"
+  parameter_group_name = "default.mysql5.7"
+  skip_final_snapshot  = true
+}
+
