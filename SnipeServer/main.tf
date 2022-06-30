@@ -122,6 +122,38 @@ resource "aws_security_group" "security_group_prod" {
   
 }
 
+
+
+
+resource "aws_security_group" "security_group_prod_Sql" {
+    name = "allow SQL traffic"
+    description = "allows SQL traffic"
+    vpc_id = aws_vpc.main.id
+    
+    ingress {
+        description = "SQL"
+        from_port = 443
+        to_port = 443
+        protocol = "tcp"
+        #Ip address that are allowed to come in
+        cidr_blocks = ["10.0.1.0/24"]
+    }
+
+    egress{
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_blocks = [ "0.0.0.0/0" ]
+
+    }
+
+    tags = {
+      Name = "Allow SQL Ports"
+    }
+
+  
+}
+
 # 7. Create a network inerface with an ip in the subnet that was created in step 4
 
 resource "aws_network_interface" "webserver-nic" {
@@ -131,6 +163,13 @@ resource "aws_network_interface" "webserver-nic" {
 
 }
 
+resource "aws_network_interface" "mysql-nic" {
+    subnet_id = aws_subnet.subnet-1.id
+    private_ip = "10.0.1.62"
+    security_groups = [aws_security_group.security_group_prod_Sql.id]  
+
+}
+ 
 # 8. Create Elastic (Public IP)
 
 resource "aws_eip" "Public-Interface" {
@@ -146,6 +185,7 @@ resource "aws_instance" "webserver-instance" {
     ami = "ami-0dc5e9ff792ec08e3"
     instance_type = "t2.micro"
     availability_zone = "us-west-1a"
+    depends_on = 
 
     key_name = "main-key"
 
@@ -163,22 +203,35 @@ resource "aws_instance" "webserver-instance" {
                 #!/bin/bash
                 sudo apt update -y
                 sudo apt upgrade -y
-                sudo apt install apache2 -y
-                sudo systemctl start apache2
-                sudo systemctl enable apache2
-                sudo bash -c 'echo webserver here! > /var/www/html/index.html'
+                sudo apt install git apache2 -y
+                sudo systemctl start apache2 && sudo systemctl enable apache2
+                sudo git clone https://github.com/snipe/snipe-it
+                sudo a2enmod rewrite
                 EOF
 
 }
-
-# 10. create Mysql database
-
-resource "aws_db_instance" "default" {
+resource "aws_db_instance" "mysql_db" {
   allocated_storage    = 10
   engine               = "mysql"
   engine_version       = "5.7"
   instance_class       = "db.t3.micro"
-  name                 = "mydb"
+  db_name                 = "mydb"
+  username             = "foo"
+  password             = "foobarbaz"
+  parameter_group_name = "default.mysql5.7"
+  skip_final_snapshot  = true
+}
+
+
+
+# 10. create Mysql database
+
+resource "aws_db_instance" "mysql_db" {
+  allocated_storage    = 10
+  engine               = "mysql"
+  engine_version       = "5.7"
+  instance_class       = "db.t3.micro"
+  db_name                 = "mydb"
   username             = "foo"
   password             = "foobarbaz"
   parameter_group_name = "default.mysql5.7"
